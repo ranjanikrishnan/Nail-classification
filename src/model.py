@@ -17,7 +17,6 @@ def load_data():
     good_nails = map((lambda x: f'{good_nails_path}/{x}'), os.listdir(good_nails_path))
     bad_nails = map((lambda x: f'{bad_nails_path}/{x}'), os.listdir(bad_nails_path))
     filenames = list(good_nails) + list(bad_nails)
-    # TODO: Apply filter operation here
     all_nails = []
     for image in filenames:
         if ".jpeg" in image:
@@ -41,7 +40,7 @@ def train_test_data(df):
 
 
 def image_preprocess(train_df, test_df):
-    checkpoint_filepath = f"{CURR_DIR}/model/nail-classifier-model.hdf5"
+    checkpoint_filepath = f"{CURR_DIR}/model/nail-classifier-model-categorical.hdf5"
     image_size = [224, 224]
     data_generator = ImageDataGenerator(preprocessing_function=preprocess_input)
 
@@ -52,7 +51,7 @@ def image_preprocess(train_df, test_df):
         batch_size=5,
         target_size=image_size,
         drop_duplicates=True,
-        class_mode='binary')
+        class_mode='categorical')
 
     test_generator = data_generator.flow_from_dataframe(
         test_df,
@@ -61,15 +60,15 @@ def image_preprocess(train_df, test_df):
         batch_size=5,
         target_size=image_size,
         drop_duplicates=True,
-        class_mode='binary')
+        class_mode='categorical')
     # vgg_model = VGG16()
     vgg_model = Sequential()
     vgg_model.add(VGG16(weights="imagenet", include_top=False, pooling='avg'))
-    vgg_model.add(Dense(units=1, activation='softmax'))
+    vgg_model.add(Dense(units=2, activation='softmax'))
     vgg_model.layers[0].trainable = False
 
     # compile the model
-    vgg_model.compile(optimizer='sgd', loss='binary_crossentropy', metrics=['accuracy'])
+    vgg_model.compile(optimizer='sgd', loss='categorical_crossentropy', metrics=['accuracy'])
 
     # Checkpoint the model
     checkpoint = ModelCheckpoint(checkpoint_filepath, monitor='val_acc', verbose=1, save_best_only=True, mode='max')
@@ -85,9 +84,10 @@ def image_preprocess(train_df, test_df):
         callbacks=callbacks_list)
 
 
-df_loaded = load_data()
-train_data, test_data, train_label, test_label = train_test_data(df_loaded)
-train_df = pd.concat([train_data, train_label], axis=1)
-test_df = pd.concat([test_data, test_label], axis=1)
+if __name__ == "__main__":
+    df_loaded = load_data()
+    train_data, test_data, train_label, test_label = train_test_data(df_loaded)
+    train_df = pd.concat([train_data, train_label], axis=1)
+    test_df = pd.concat([test_data, test_label], axis=1)
 
-image_preprocess(train_df, test_df)
+    image_preprocess(train_df, test_df)
