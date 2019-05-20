@@ -12,7 +12,7 @@ A simple CNN model is also implemented to establish a baseline.
 Prerequisites 
 ==============================
 
-requirements.txt file contains all the necessary packages for the whole task
+The requirements.txt file contains all the necessary packages for the whole task
 
 Steps for Running 
 ==============================
@@ -20,6 +20,7 @@ Steps for Running
 ```
 git clone https://github.com/ranjanikrishnan/Nail-classification
 ```
+- Copy the nail images to /data folder.
 
 - Run the model:
   * This will train the model and show prediction results.
@@ -45,11 +46,11 @@ Run using docker:
 ==============================
 - Build the Dockerfile
 ```
-docker build -t deevio .
+docker build -t nail-classifier .
 ```
 -  Run the docker container
 ```
-docker run -it deevio
+docker run -it nail-classifier
 ```
 - For classifying an image:
    Open a new terminal, copy url to the image and run the following for vgg16 model prediction.
@@ -69,8 +70,8 @@ Questions to keep in mind
 ==============================
 * How well does your model perform? How does it compare to the simplest baseline model
  you can think of?
-  - The simple baseline model got a validation accuracy of 66.7% whereas using the VGG-16 model bumped the validation 
-  accuracy to 83.3 %.
+  - The simple baseline model got a validation accuracy of 66.7% after training for 30 epochs whereas using 
+  the VGG-16 model for only 12 epochs gave a validation accuracy of 83.3 %.
  
 * How many images are required to build an accurate model?
   - To build an accurate model at least 1k-5k images would be needed. Data augmentation steps like horizontal/vertical

@@ -7,7 +7,7 @@ from keras.layers import Dense, Activation, Dropout, Flatten
 from keras.layers import Conv2D, MaxPooling2D
 from keras.preprocessing.image import ImageDataGenerator
 from keras.callbacks import ModelCheckpoint
-from keras.optimizers import SGD, RMSprop
+from keras.optimizers import RMSprop
 
 CURR_DIR = os.curdir
 

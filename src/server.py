@@ -4,7 +4,7 @@ import requests
 import flask
 from flask import request
 from keras.models import load_model
-from keras.preprocessing.image import img_to_array, load_img
+from keras.preprocessing.image import img_to_array
 from keras.applications.vgg16 import preprocess_input
 import numpy as np
 import PIL.Image as Image
