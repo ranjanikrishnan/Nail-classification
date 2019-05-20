@@ -14,6 +14,9 @@ app = flask.Flask(__name__)
 
 
 def load_vgg_model():
+    """
+    loads the model from the checkpoint
+    """
     checkpoint_filepath = f"{CURR_DIR}/model/nail-classifier-model-categorical.hdf5"
     global model
     model = load_model(checkpoint_filepath)
@@ -21,6 +24,12 @@ def load_vgg_model():
 
 
 def prepare_image(image, target):
+    """
+    apply preprocessing to image
+    :param image: image to be processed
+    :param target: resize parameters
+    :return: processed image
+    """
     if image.mode != "RGB":
         image = image.convert("RGB")
     image = image.resize(target)
@@ -33,7 +42,12 @@ def prepare_image(image, target):
     return processed_image
 
 
-def interprete_prediction(prediction):
+def interpreted_prediction(prediction):
+    """
+    interpret the prediction value as good or bad
+    :param prediction: prediction from the model
+    :return: probability of the prediction and prediction as a dictionary value
+    """
     class_dict = {0: 'bad', 1: 'good'}
     rp = int(round(prediction[0][0]))
     return float(prediction[0][0]), rp, class_dict.get(rp)
@@ -41,6 +55,10 @@ def interprete_prediction(prediction):
 
 @app.route("/predict", methods=["POST"])
 def predict():
+    """
+
+    :return:
+    """
     # initialize the data dictionary that will be returned from the view
     data = {"success": False}
 
@@ -57,7 +75,7 @@ def predict():
             # classify the input image and then initialize the list
             # of predictions to return to the client
             predictions = model.predict(image)
-            data = {"prediction": interprete_prediction(predictions), "success": True}
+            data = {"prediction": interpreted_prediction(predictions), "success": True}
 
     return flask.jsonify(data)
 

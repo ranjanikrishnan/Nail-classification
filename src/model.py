@@ -3,7 +3,8 @@ import pandas as pd
 from sklearn.model_selection import ShuffleSplit
 from keras.models import Sequential
 from keras.applications.vgg16 import preprocess_input, VGG16
-from keras.layers import Dense
+from keras.layers import Dense, Activation, Dropout, Flatten
+from keras.layers import Conv2D, MaxPooling2D
 from keras.preprocessing.image import ImageDataGenerator
 from keras.callbacks import ModelCheckpoint
 from keras.optimizers import SGD, RMSprop
@@ -12,6 +13,10 @@ CURR_DIR = os.curdir
 
 
 def load_data():
+    """
+    load image data from folder into a dataframe with image path and label
+    :return: dataframe with image path and labels(good or bad)
+    """
     good_nails_path = f"{CURR_DIR}/data/nailgun/good"
     bad_nails_path = f"{CURR_DIR}/data/nailgun/bad"
 
@@ -31,6 +36,11 @@ def load_data():
 
 
 def train_test_data(df):
+    """
+    split into training and testing data
+    :param df: dataframe with image path and label
+    :return: training data, training label, test data and test label
+    """
     data = df["image"]
     label = df["label"]
     split = ShuffleSplit(n_splits=1, test_size=.50, random_state=0)
@@ -41,10 +51,16 @@ def train_test_data(df):
 
 
 def image_preprocess(train_df, test_df):
+    """
+    image augmentation applied on the training and testing image data
+    :param train_df: training data
+    :param test_df: testing data
+    """
     checkpoint_filepath = f"{CURR_DIR}/model/nail-classifier-model-categorical.hdf5"
     image_size = [224, 224]
     data_generator = ImageDataGenerator(preprocessing_function=preprocess_input, horizontal_flip=True,
-                                        vertical_flip=True, zoom_range=0.2, shear_range=0.2 )
+                                        vertical_flip=True, zoom_range=0.2, shear_range=0.2, rotation_range=40,
+                                        width_shift_range=0.2, height_shift_range=0.2,fill_mode='nearest')
 
     train_generator = data_generator.flow_from_dataframe(
         train_df,
@@ -64,7 +80,7 @@ def image_preprocess(train_df, test_df):
         drop_duplicates=True,
         class_mode='categorical')
 
-    # vgg_model = VGG16()
+    # # vgg_model = VGG16()
     vgg_model = Sequential()
     vgg_model.add(VGG16(weights="imagenet", include_top=False, pooling='avg'))
     vgg_model.add(Dense(units=2, activation='softmax'))
@@ -86,6 +102,44 @@ def image_preprocess(train_df, test_df):
         validation_steps=1,
         epochs=15,
         callbacks=callbacks_list)
+
+    # simple CNN
+    # cnn_model = Sequential()
+    # cnn_model.add(Conv2D(32, (2, 2),)
+    # cnn_model.add(Activation('relu'))
+    # cnn_model.add(MaxPooling2D(pool_size=(2, 2)))
+    #
+    # cnn_model.add(Conv2D(32, (2,2)))
+    # cnn_model.add(Activation('relu'))
+    # cnn_model.add(MaxPooling2D(pool_size=(2, 2)))
+    #
+    # cnn_model.add(Conv2D(64, (2,2)))
+    # cnn_model.add(Activation('relu'))
+    # cnn_model.add(MaxPooling2D(pool_size=(2, 2)))
+    #
+    # cnn_model.add(Flatten())  # this converts our 3D feature maps to 1D feature vectors
+    # cnn_model.add(Dense(64))
+    # cnn_model.add(Activation('relu'))
+    # cnn_model.add(Dropout(0.5))
+    # cnn_model.add(Dense(1))
+    # cnn_model.add(Activation('sigmoid'))
+
+    # compile the model
+    # sgd = SGD(lr=1e-3, decay=1e-6, momentum=0.9, nesterov=True)
+    # cnn_model.compile(optimizer=RMSprop(lr=0.001), loss='categorical_crossentropy', metrics=['accuracy'])
+    #
+    # # Checkpoint the model
+    # checkpoint = ModelCheckpoint(checkpoint_filepath, monitor='val_acc', verbose=1, save_best_only=True, mode='max')
+    # callbacks_list = [checkpoint]
+    #
+    # # Fit the model
+    # cnn_model.fit_generator(
+    #     train_generator,
+    #     steps_per_epoch=3,
+    #     validation_data=test_generator,
+    #     validation_steps=1,
+    #     epochs=15,
+    #     callbacks=callbacks_list)
 
 
 if __name__ == "__main__":
