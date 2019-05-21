@@ -43,7 +43,7 @@ git clone https://github.com/ranjanikrishnan/Nail-classification
 - Copy the nail images to /data folder in the format /data/nailgun.
 
 - Run the model:
-  * This will train the model and show prediction results.
+  * This will train the model and show training and validation loss and accuracy values.
 ```
 python src/model.py
 ```
